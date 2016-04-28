@@ -1,8 +1,10 @@
-'''Dump_env_base.py.
+'''Basic dump env for video team.
 
-author : daviscao@zhaoxin.com
-date   : 2016.4.15
-the basic chass tool to dump a list command batch in special format'''
+version: 2.0
+author : daviscao
+date   : 20160427
+the basic chass tool to dump a list command batch in special format
+'''
 # -*- coding: utf-8 -*-
 import os
 import sys
@@ -10,49 +12,41 @@ import shutil
 import time
 import re
 
+
 class dump_env:
-    def __init__(self,project,binary,batch,inifile,cmdidx_list,result_path,datmode,usermodedrivername):
-        self.project     = project
-        self.binary      = binary
-        self.batch       = batch
-        self.inifile     = inifile
-        self.cmdidx_list = cmdidx_list
+    def __init__(self):
+        self.basic_binary_path = basic_binary_path
+        self.abt_binary_path   = abt_binary_path
+        self.usermodedrivername = usermodedrivername
+        self.datmode = datmode
         self.result_path = result_path
-        self.datmode     = datmode
-        self.UMDN        = usermodedrivername
+        self.userinifile = userinifile
+        self.userbatfile = userbatfile
+        self.runvat_path = None
+        self.ininame = ininame
+        self.cmdidx_list = cmdidx_list
+        self.run_env_path = os.getcwd()
 
-        self.runvat_dir  = ''
-        self.runenv_path = os.getcwd()
-
-        self.abt_binary_path  = r'Y:'+os.sep+self.project+os.sep+self.binary
-        self.dump_binary_path = self.runenv_path + os.sep + self.binary
-        #print (self.dump_binary_path)
-#######
-#######
-    def prepare_dump_phase(self):
-        print('>>>> Enter prepare dump phase >>>>')
-        self.prepare_dump_binary()
-        self.prepare_dump_cteini()
-        self.prepare_dump_checkpath()
-        self.prepare_dump_rundir()
-    def prepare_dump_binary(self):
-        if not os.path.exists(self.dump_binary_path):
-            print('  >> enter the 1th step: prepare dump binary ...')
-            if os.path.exists(self.abt_binary_path):
-                shutil.copytree(self.abt_binary_path,self.dump_binary_path)
-                os.chdir(self.dump_binary_path+os.sep+'binary')
+    def prepare_basic_binary(self):
+        print('>> Enter the 1th step: prepare dump binary: %s ...' %self.basic_binary_path)
+        if os.path.exists(self.abt_binary_path):
+            if not os.path.exists(self.basic_binary_path):
+                os.mkdir(self.basic_binary_path)
+            if not os.path.exists(self.basic_binary_path+os.sep+'binary'):
+                shutil.copytree(self.abt_binary_path+os.sep+'binary',
+                                self.basic_binary_path+os.sep+'binary')
+                os.chdir(self.basic_binary_path+os.sep+'binary')
                 os.remove('igdumd32.dll')
-                os.rename('S3DDX9L_32.dll',self.UMDN)
-                os.chdir(self.runenv_path)
-                #print('    >> plseas prepare your *.ini file ...')
-                #sys.exit(0)
+                os.rename('S3DDX9L_32.dll',self.usermodedrivername)
+                os.chdir(self.run_env_path)
             else:
-                print("  *ERROR: check your binary '%s' on the server" %self.abt_binary_path)
+                print("     '%s' exists already, jump this step" %self.basic_binary_path)
         else:
-            print('  >> jump out the 1th step: prepare dump binary ...')
-    def prepare_dump_cteini(self):
-        time.sleep(1)
-        print('  >> enter the 2th step: prepare cte.ini and VideoVectorCut.ini ...')
+            print("     *Error: check your binary '%s' on the server" %self.abt_binary_path)
+
+    def prepare_cteini(self):
+        time.sleep(2)
+        print('>> Enter the 2th step: prepare cte.ini and VideoVectorCut.ini ...')
         with open(r'C:\CTEDump.ini','w') as foo:
             foo.write('DUMP ON'+'\n')
             foo.write('PATH '+self.result_path+'\n')
@@ -63,57 +57,34 @@ class dump_env:
         with open(r'C:\VideoVectorCut.ini','w') as foo:
             foo.write('MODE 0'+'\n')
             foo.write('FRAME 0'+'\n') #any will be OK
-    def prepare_dump_checkpath(self):
-        print('  >> enter the 3th step: check dump result path and config path ...')
-        if not os.path.exists(self.result_path):
-            os.mkdir(self.result_path)
-        if not os.path.exists(self.dump_binary_path+os.sep+'cfg_ini'):
-            os.mkdir(self.dump_binary_path+os.sep+'cfg_ini')
-        
-        if not os.path.exists(self.dump_binary_path+os.sep+'cfg_bat'):
-            os.mkdir(self.dump_binary_path+os.sep+'cfg_bat')
-        if len(os.listdir(self.dump_binary_path+os.sep+'cfg_ini')) == 0:
-            print('    >> please prepare the .ini file ...')
-            sys.exit(0)
-        if len(os.listdir(self.dump_binary_path+os.sep+'cfg_bat')) == 0:
-            print('    >> please prepare the batch file ...')
-            sys.exit(0)
-    def prepare_dump_rundir(self):
-        print('  >> enter the 4th step: prepare dump run dir ...')
-        self.runvat_dir = time.strftime('%Y%m%d',time.localtime(time.time()))
+
+    def prepare_rundir(self):
+        print('>> Enter the 3th step: prepare run vat dir and its .ini file ...')
+        rundate = time.strftime('%Y%m%d',time.localtime(time.time()))
         i = 1
         while True:
-            #self.run_dir = self.dump_path+os.sep+self.binary+os.sep+self.run_dir+'_'+str(i)
-            if os.path.exists(self.dump_binary_path+os.sep+self.runvat_dir+'_'+str(i)):
+            if os.path.exists(self.basic_binary_path+os.sep+rundate+'_'+str(i)):
                 i = i+1
             else:
-                self.runvat_dir = self.dump_binary_path+os.sep+self.runvat_dir+'_'+str(i)
-                shutil.copytree(self.dump_binary_path+os.sep+'binary',self.runvat_dir)
+                self.runvat_path = self.basic_binary_path+os.sep+rundate+'_'+str(i)
+                shutil.copytree(self.basic_binary_path+os.sep+'binary',self.runvat_path)
                 break
             
-        os.remove(self.runvat_dir+os.sep+self.inifile)
-        shutil.copy(self.dump_binary_path+os.sep+'cfg_ini'+os.sep+self.inifile,
-                    self.runvat_dir+os.sep+'Excalibur.ini')
-        print(self.runvat_dir)
-#######
-#######
-    def run_dump_phase(self):
-        print('>>>> Enter run dump phase     >>>>')
-        self.start_dump_batch()
-        
-    def start_dump_batch(self):
-        self.batch = self.dump_binary_path+os.sep+'cfg_bat'+os.sep+self.batch
+        os.remove(self.runvat_path+os.sep+self.ininame)
+        shutil.copy(self.userinifile,self.runvat_path+os.sep+self.ininame)
 
-        with open(self.batch,'r') as bat:
+        print('     '+self.runvat_path)
+        print('     '+self.userinifile)
+####
+    def start_dump_batch(self):
+        with open(self.userbatfile,'r') as bat:
             batlines = bat.readlines()
-        if len(self.cmdidx_list) == 0:
-            self.cmdidx_list = range(1,len(batlines)+1)
         print(self.cmdidx_list)
         for idx in self.cmdidx_list:
-            print(idx)
+            print('     cmd idx : %d'%idx)
             cmdline = batlines[idx - 1]
             cmdline = cmdline.replace('\n','')
-            print('  >> '+cmdline)
+            print('       >> '+cmdline)
             self.start_dump_onecmd(cmdline)
 
     def start_dump_onecmd(self,cmdline):
@@ -125,7 +96,7 @@ class dump_env:
             print('dumping jump')
         else:
             try:
-                os.chdir(self.runvat_dir)
+                os.chdir(self.runvat_path)
                 os.system(cmd)
                 print(key,name,cmd)
             except:
@@ -134,22 +105,29 @@ class dump_env:
                 dump_result = self.result_path+os.sep+name
                 if os.path.exists(dump_result):
                     os.rename(dump_result,self.result_path+os.sep+key+'_'+name)
+    ####
+    def dump_prepare_phase(self):
+        self.prepare_basic_binary()
+        self.prepare_cteini()
+        self.prepare_rundir()
+    def dump_run_phase(self):
+        print('>> Enter the 4th step: run command in the list ...')
+        self.start_dump_batch()
+    #### main function ####
     def kickoff_dumpenv(self):
-        self.prepare_dump_phase()
-        self.run_dump_phase()
-        print('>>>> End   dump               >>>>')
-
-
-
+        self.dump_prepare_phase()
+        self.dump_run_phase()
+    
 if __name__ == '__main__':
-    project = 'CHX001'
-    binary  = '229881'
-    batch   = 'H264_DEC_multislice.txt'
-    inifile = 'Excalibur.ini'
-    cmdidx_list = range(162,197)
-    result_path = r'E:\hw\CHX001\dump'
-    datmode  = 'BIN'
+    #dump_env_cfg = 'dump_env_cfg.txt'
+    basic_binary_path = r'D:\hw\CHX001\231981'
+    abt_binary_path = r'Y:\CHX001\231981'
     usermodedrivername = 'igdumdim32.dll'
+    datmode = 'BIN'
+    result_path = r'E:\hw\CHX001\dump'
 
-    dump_env_inst = dump_env(project,binary,batch,inifile,cmdidx_list,result_path,datmode,usermodedrivername)
-    dump_env_inst.kickoff_dumpenv()
+    userinifile = r'D:\hw\CHX001\dump_cfg\Excalibur.ini'
+    userbatfile = r'D:\hw\CHX001\dump_cfg\bat.txt'
+    ininame = 'Excalibur.ini'
+    dump_inst = dump_env()
+    dump_inst.kickoff_dumpenv()
