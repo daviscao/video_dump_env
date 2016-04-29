@@ -92,12 +92,12 @@ class dump_env:
         key,name,cmd = re.split('\s*=>\s*',cmdline)
         dump_results_l = os.listdir(self.result_path)
         if key+'_'+name in dump_results_l:#no need to dump
-            print('rename jump')
+            print('       >> rename jump')
         elif name in dump_results_l:#dumping or un-rename
-            print('dumping jump')
+            print('       >> dumping jump')
         else:
             try:
-                #print('       >> '+cmd)
+                print('       >> '+cmd)
                 os.chdir(self.runvat_path)
                 os.system(cmd)
                 print(key,name,cmd)
