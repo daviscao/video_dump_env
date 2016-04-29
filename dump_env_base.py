@@ -14,18 +14,19 @@ import re
 
 
 class dump_env:
-    def __init__(self):
-        self.basic_binary_path = basic_binary_path
-        self.abt_binary_path   = abt_binary_path
-        self.usermodedrivername = usermodedrivername
-        self.datmode = datmode
-        self.result_path = result_path
-        self.userinifile = userinifile
-        self.userbatfile = userbatfile
-        self.runvat_path = None
-        self.ininame = ininame
-        self.cmdidx_list = cmdidx_list
-        self.run_env_path = os.getcwd()
+    def __init__(self,cfg_dict):
+        self.basic_binary_path  = cfg_dict['basic_binary_path']
+        self.abt_binary_path    = cfg_dict['abt_binary_path']
+        self.usermodedrivername = cfg_dict['usermodedrivername']
+        self.datmode            = cfg_dict['datmode']
+        self.result_path        = cfg_dict['result_path']
+        self.userinifile        = cfg_dict['userinifile']
+        self.userbatfile        = cfg_dict['userbatfile']
+        self.ininame            = cfg_dict['ininame']
+        self.cmdidx_list        = cfg_dict['cmdidx_list']
+
+        self.runvat_path    = None
+        self.run_env_path   = os.getcwd()
 
     def prepare_basic_binary(self):
         print('>> Enter the 1th step: prepare dump binary: %s ...' %self.basic_binary_path)
@@ -84,7 +85,7 @@ class dump_env:
             print('     cmd idx : %d'%idx)
             cmdline = batlines[idx - 1]
             cmdline = cmdline.replace('\n','')
-            print('       >> '+cmdline)
+            #print('       >> '+cmdline)
             self.start_dump_onecmd(cmdline)
 
     def start_dump_onecmd(self,cmdline):
@@ -96,6 +97,7 @@ class dump_env:
             print('dumping jump')
         else:
             try:
+                #print('       >> '+cmd)
                 os.chdir(self.runvat_path)
                 os.system(cmd)
                 print(key,name,cmd)
@@ -119,15 +121,16 @@ class dump_env:
         self.dump_run_phase()
     
 if __name__ == '__main__':
-    #dump_env_cfg = 'dump_env_cfg.txt'
-    basic_binary_path = r'D:\hw\CHX001\231981'
-    abt_binary_path = r'Y:\CHX001\231981'
-    usermodedrivername = 'igdumdim32.dll'
-    datmode = 'BIN'
-    result_path = r'E:\hw\CHX001\dump'
+    cfg_dict = dict()
+    cfg_dict['basic_binary_path'] = r'D:\hw\CHX001\231981'
+    cfg_dict['abt_binary_path'] = r'Y:\CHX001\231981'
+    cfg_dict['usermodedrivername'] = 'igdumdim32.dll'
+    cfg_dict['datmode'] = 'BIN'
+    cfg_dict['result_path'] = r'E:\hw\CHX001\dump'
 
-    userinifile = r'D:\hw\CHX001\dump_cfg\Excalibur.ini'
-    userbatfile = r'D:\hw\CHX001\dump_cfg\bat.txt'
-    ininame = 'Excalibur.ini'
-    dump_inst = dump_env()
+    cfg_dict['userinifile'] = r'D:\hw\CHX001\dump_cfg\Excalibur.ini'
+    cfg_dict['userbatfile'] = r'D:\hw\CHX001\dump_cfg\bat.txt'
+    cfg_dict['ininame'] = 'Excalibur.ini'
+    cfg_dict['cmdidx_list'] = [1,2,3,4,5]
+    dump_inst = dump_env(cfg_dict)
     dump_inst.kickoff_dumpenv()
