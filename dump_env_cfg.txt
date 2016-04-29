@@ -1,0 +1,14 @@
+// comment line and space line can be jumped
+
+binary_num		= 231981
+userinifile 		= xx.ini
+userbatfile 		= bat.txt		// any comment can be removed
+cmdidx_list		= 1,2,5-7,10-12,14,16	// any comment can be removed
+datmode 		= BIN
+result_path 		= E:\hw\CHX001\dump
+
+dump_path	 	= D:\hw\CHX001
+dump_cfg_path		= D:\hw\CHX001\dump_cfg
+abt_path 		= Y:\CHX001
+usermodedrivername 	= igdumdim32.dll
+ininame 		= Excalibur.ini
